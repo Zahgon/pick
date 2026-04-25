@@ -9,15 +9,9 @@ class BlessedBackend(Backend):
     """Backend that uses the blessed library (optional dependency)."""
 
     def __init__(self) -> None:
-        try:
-            import blessed
-        except ImportError:
-            raise ImportError(
-                "blessed is required for BlessedBackend. "
-                "Install with: pip install pick[blessed]"
-            )
-        self._term = blessed.Terminal()
-        self._ctx: Optional[contextlib.ExitStack] = None
+        import blessed
+
+        pass
 
     def setup(self) -> None:
         pass

@@ -2,7 +2,18 @@ import curses
 import textwrap
 from collections import namedtuple
 from dataclasses import dataclass, field
-from typing import Any, Container, Generic, Iterable, List, Optional, Sequence, Tuple, TypeVar, Union
+from typing import (
+    Any,
+    Container,
+    Generic,
+    Iterable,
+    List,
+    Optional,
+    Sequence,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 from .backend import Backend
 from .blessed_backend import BlessedBackend
@@ -40,7 +51,7 @@ SYMBOL_CIRCLE_EMPTY = "( )"
 OPTION_T = TypeVar("OPTION_T", str, Option)
 PICK_RETURN_T = Tuple[OPTION_T, int]
 
-Position = namedtuple('Position', ['y', 'x'])
+Position = namedtuple("Position", ["y", "x"])
 
 
 @dataclass
@@ -71,7 +82,9 @@ class Picker(Generic[OPTION_T]):
                 "min_selection_count is bigger than the available options, you will not be able to make any selection"
             )
 
-        if all(isinstance(option, Option) and not option.enabled for option in self.options):
+        if all(
+            isinstance(option, Option) and not option.enabled for option in self.options
+        ):
             raise ValueError(
                 "all given options are disabled, you must at least have one enabled option."
             )
@@ -124,6 +137,9 @@ class Picker(Generic[OPTION_T]):
         pass
 
     def start(self):
+        def _curses_main(screen: "curses._CursesWindow"):
+            pass
+
         pass
 
 
