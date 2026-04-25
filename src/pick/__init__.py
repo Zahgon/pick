@@ -82,197 +82,49 @@ class Picker(Generic[OPTION_T]):
             self.move_down()
 
     def move_up(self) -> None:
-        while True:
-            self.index -= 1
-            if self.index < 0:
-                self.index = len(self.options) - 1
-            option = self.options[self.index]
-            if not isinstance(option, Option) or option.enabled:
-                break
+        pass
 
     def move_down(self) -> None:
-        while True:
-            self.index += 1
-            if self.index >= len(self.options):
-                self.index = 0
-            option = self.options[self.index]
-            if not isinstance(option, Option) or option.enabled:
-                break
+        pass
 
     def mark_index(self) -> None:
-        if self.multiselect:
-            if self.index in self.selected_indexes:
-                self.selected_indexes.remove(self.index)
-            else:
-                self.selected_indexes.append(self.index)
+        pass
 
     def get_selected(self) -> Union[List[PICK_RETURN_T], PICK_RETURN_T]:
         """return the current selected option as a tuple: (option, index)
         or as a list of tuples (in case multiselect==True)
         """
-        if self.multiselect:
-            return_tuples = []
-            for selected in self.selected_indexes:
-                return_tuples.append((self.options[selected], selected))
-            return return_tuples
-        else:
-            return self.options[self.index], self.index
+        pass
 
     def get_title_lines(self, *, max_width: int = 80) -> List[str]:
-        if not self.title:
-            return []
-
-        if "\n" in self.title:
-            lines = self.title.split("\n")
-        else:
-            lines = textwrap.fill(self.title, max_width - 2, drop_whitespace=False).split("\n")
-        return lines + [""]
+        pass
 
     def get_option_lines(self) -> List[str]:
-        lines: List[str] = []
-        for index, option in enumerate(self.options):
-            if index == self.index:
-                prefix = self.indicator
-            else:
-                prefix = len(self.indicator) * " "
-
-            if self.multiselect:
-                symbol = (
-                    SYMBOL_CIRCLE_FILLED
-                    if index in self.selected_indexes
-                    else SYMBOL_CIRCLE_EMPTY
-                )
-                prefix = f"{prefix} {symbol}"
-
-            option_as_str = option.label if isinstance(option, Option) else option
-            lines.append(f"{prefix} {option_as_str}")
-
-        return lines
+        pass
 
     def get_lines(self, *, max_width: int = 80) -> Tuple[List[str], int]:
-        title_lines = self.get_title_lines(max_width=max_width)
-        option_lines = self.get_option_lines()
-        lines = title_lines + option_lines
-        current_line = self.index + len(title_lines) + 1
-        return lines, current_line
+        pass
 
     def draw(self, screen: Backend) -> None:
         """draw the UI on the screen, handle scroll if needed"""
-        if self.clear_screen:
-            screen.clear()
-
-        y, x = self.position  # start point
-
-        max_y, max_x = screen.getmaxyx()
-        max_rows = max_y - y  # the max rows we can draw
-
-        lines, current_line = self.get_lines(max_width=max_x)
-
-        # calculate how many lines we should scroll, relative to the top
-        scroll_top = 0
-        if current_line > max_rows:
-            scroll_top = current_line - max_rows
-
-        lines_to_draw = lines[scroll_top : scroll_top + max_rows]
-
-        description_present = False
-        for option in self.options:
-            if isinstance(option, Option) and option.description is not None:
-                description_present = True
-                break
-
-        title_length = len(self.get_title_lines(max_width=max_x))
-
-        for i, line in enumerate(lines_to_draw):
-            if description_present and i > title_length:
-                screen.addnstr(y, x, line, max_x // 2 - 2)
-            else:
-                screen.addnstr(y, x, line, max_x - 2)
-            y += 1
-
-        option = self.options[self.index]
-        if isinstance(option, Option) and option.description is not None:
-            description_lines = textwrap.fill(option.description, max_x // 2 - 2).split('\n')
-
-            for i, line in enumerate(description_lines):
-                screen.addnstr(i + title_length, max_x // 2, line, max_x - 2)
-
-        screen.refresh()
+        pass
 
     def run_loop(
         self, screen: Backend, position: Position
     ) -> Union[List[PICK_RETURN_T], PICK_RETURN_T]:
-        while True:
-            self.draw(screen)
-            c = screen.getch()
-            if self.quit_keys is not None and c in self.quit_keys:
-                if self.multiselect:
-                    return []
-                else:
-                    return None, -1
-            elif c in KEYS_UP:
-                self.move_up()
-            elif c in KEYS_DOWN:
-                self.move_down()
-            elif c in KEYS_ENTER:
-                if (
-                    self.multiselect
-                    and len(self.selected_indexes) < self.min_selection_count
-                ):
-                    continue
-                return self.get_selected()
-            elif c in KEYS_SELECT and self.multiselect:
-                self.mark_index()
+        pass
 
     def _resolve_backend(self) -> Backend:
-        if isinstance(self.backend, Backend):
-            return self.backend
-        if self.backend == "curses":
-            return CursesBackend(screen=self.screen)
-        if self.backend == "blessed":
-            return BlessedBackend()
-        raise ValueError(
-            f"Unknown backend: {self.backend!r}. "
-            "Use 'curses', 'blessed', or a Backend instance."
-        )
+        pass
 
     def config_curses(self) -> None:
-        try:
-            # use the default colors of the terminal
-            curses.use_default_colors()
-            # hide the cursor
-            curses.curs_set(0)
-        except Exception:
-            # Curses failed to initialize color support, eg. when TERM=vt100
-            curses.initscr()
+        pass
 
     def _start(self, screen: "curses._CursesWindow"):
-        self.config_curses()
-        return self.run_loop(CursesBackend(screen=screen), self.position)
+        pass
 
     def start(self):
-        backend = self._resolve_backend()
-        if isinstance(backend, CursesBackend) and backend._screen is not None:
-            # Embedded in an existing curses application (backward-compatible)
-            last_cur = curses.curs_set(0)
-            ret = self.run_loop(backend, self.position)
-            if last_cur:
-                curses.curs_set(last_cur)
-            return ret
-        elif isinstance(backend, CursesBackend):
-            # Standalone curses mode
-            def _curses_main(screen: "curses._CursesWindow"):
-                backend._screen = screen
-                backend.setup()
-                return self.run_loop(backend, self.position)
-            return curses.wrapper(_curses_main)
-        else:
-            # Other backends (e.g. blessed)
-            backend.setup()
-            try:
-                return self.run_loop(backend, self.position)
-            finally:
-                backend.teardown()
+        pass
 
 
 def pick(
@@ -288,17 +140,4 @@ def pick(
     quit_keys: Optional[Union[Container[int], Iterable[int]]] = None,
     backend: Union[str, Backend] = "curses",
 ):
-    picker: Picker = Picker(
-        options,
-        title,
-        indicator,
-        default_index,
-        multiselect,
-        min_selection_count,
-        screen,
-        position,
-        clear_screen,
-        quit_keys,
-        backend,
-    )
-    return picker.start()
+    pass
